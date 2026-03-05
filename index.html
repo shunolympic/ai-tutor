@@ -86,9 +86,6 @@ button {
   cursor: pointer;
   display: none;
 }
-.loading {
-  color: #888;
-}
 </style>
 </head>
 
@@ -97,8 +94,8 @@ button {
   <div class="title">家教AI课堂小结（批量版）</div>
   <div class="tip">
     每行一名学生，直接写情况<br>
-    例：小明 数学 小数乘法，认真，正确率高<br>
-    　　　小红 语文 阅读理解有进步
+    例：小明 课堂积极认真 课后需要针对not only but also进行针对性的复习<br>
+    　　　小红 上课注意力有点不集中 课后需要把Up to date latest 区分，对literature wealthy scene  actress 单词的解释重点复习
   </div>
 
   <textarea id="input" placeholder="每行一名学生，直接写情况，无需格式"></textarea>
@@ -108,14 +105,15 @@ button {
     <button class="btn-clear" onclick="clearAll()">清空</button>
   </div>
 
-  <div class="result" id="resultBox">
+  <div class="result">
     <button class="copy-all" id="copyBtn" onclick="copyAll()">复制全部</button>
     <div id="resultText"></div>
   </div>
 </div>
 
 <script>
-// 本地演示模式 —— 上传 GitHub/Gitee 100% 不报错！
+const API_KEY = "sk-912ddc23ab394f1397321debec548e31";
+
 async function genAll() {
   const text = document.getElementById('input').value.trim();
   const resText = document.getElementById('resultText');
@@ -126,16 +124,45 @@ async function genAll() {
     return;
   }
 
-  resText.textContent = "AI 正在批量生成中，请稍候...";
+  resText.textContent = "AI 生成中...";
   copyBtn.style.display = "none";
 
-  // 本地演示用示例结果，上传后不报错
-  setTimeout(() => {
-    resText.textContent = `✅ 学生小结生成完成（演示版）
-根据你输入的内容，已自动生成小结。
-如需对接真实DeepSeek，我可以给你搭建安全无报错版本。`;
-    copyBtn.style.display = "block";
-  }, 1000);
+  try {
+    const response = await fetch("https://api.deepseek.com/chat/completions", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        "Authorization": `Bearer ${API_KEY}`
+      },
+      body: JSON.stringify({
+        model: "deepseek-chat",
+        messages: [{
+          role: "user",
+          content: `你是专业英语家庭教师，根据每行一名学生的信息，生成适合发给家长的课堂小结。
+要求：
+请生成一段温柔、亲切、鼓励、适合发给家长的英语课堂评价：
+学生姓名：【】
+课堂表现：【】
+课后需重点巩固：【】
+要求：
+1. 语气温柔有耐心，老师口吻，突出孩子专注、认真、自律的优点。
+2. 先表扬课堂表现，再清晰讲解巩固内容：含义+用法+1–2个简单例句。
+3. 结尾温柔鼓励，充满期待。
+4. 风格温暖、正式但不生硬，方便直接发给家长。
+
+内容：
+${text}`
+        }]
+      })
+    });
+
+    const data = await response.json();
+    resText.textContent = data.choices?.[0]?.message?.content || "生成失败";
+  } catch (e) {
+    resText.textContent = "错误：" + e.message;
+  }
+
+  copyBtn.style.display = "block";
 }
 
 function clearAll() {
@@ -146,12 +173,8 @@ function clearAll() {
 
 async function copyAll() {
   const content = document.getElementById('resultText').textContent;
-  try {
-    await navigator.clipboard.writeText(content);
-    alert("已复制全部小结！");
-  } catch (e) {
-    alert("复制失败，请手动复制");
-  }
+  await navigator.clipboard.writeText(content);
+  alert("已复制全部");
 }
 </script>
 </body>
