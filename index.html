@@ -40,7 +40,7 @@ button{flex:1;padding:14px;border:none;border-radius:12px;font-size:16px}
 
 <script>
 // ==============================================
-// 【你的专属提示词 —— 自己随便改】
+// 你的英语教师提示词（可自由修改）
 // ==============================================
 const PROMPT_TEMPLATE = `
 你是一名专业英语家庭教师，请生成一段温柔、亲切、鼓励、适合发给家长的英语课堂评价：
@@ -58,34 +58,39 @@ const PROMPT_TEMPLATE = `
 `;
 
 // ==============================================
-// 【微信专用 AI 接口】
+// 豆包 API（你的密钥已填入）
 // ==============================================
+const ACCESS_KEY = "AKLTMzI0NGVhNTFmYjdiNGRjMmJiYzQyZjQ4ZTVkZjYwNTE";
+const SECRET_KEY = "TURneE16WXhZamczWVdaa05EQXdOamcyWmpnNU1tUmxNREEwTURCak5HUQ==";
+
 async function generate() {
   const text = document.getElementById('input').value.trim();
   const res = document.getElementById('result');
   const copyBtn = document.getElementById('copyBtn');
 
   if (!text) { alert('请输入学生情况'); return; }
-  res.innerText = "AI正在生成评价...";
+  res.innerText = "AI生成中...";
   copyBtn.style.display = "none";
 
   try {
     const prompt = PROMPT_TEMPLATE.replace("{{content}}", text);
 
-    const response = await fetch("https://api.plexustech.cc/api/ai", {
+    const response = await fetch("https://ark.cn-shanghai.oss-drcn.aliyuncs.com/v1/chat/completions", {
       method: "POST",
-      headers: { "Content-Type": "application/json" },
+      headers: {
+        "Content-Type": "application/json",
+        "Authorization": "Bearer " + ACCESS_KEY + ":" + SECRET_KEY
+      },
       body: JSON.stringify({
-        key: "sk-912ddc23ab394f1397321debec548e31",
-        prompt: prompt
+        model: "doubao-lite",
+        messages: [{ role: "user", content: prompt }]
       })
     });
 
     const data = await response.json();
-    res.innerText = data.result || "生成失败，请重试";
+    res.innerText = data.choices?.[0]?.message?.content || "生成失败，请重试";
   } catch (e) {
-    res.innerText = "请稍等，正在重新生成...";
-    setTimeout(() => generate(), 1000);
+    res.innerText = "请使用 WIFI 重试";
   }
 
   copyBtn.style.display = "block";
