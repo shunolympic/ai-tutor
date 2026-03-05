@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>家教AI课堂小结（批量版）</title>
+<title>英语课堂评价生成器</title>
 <style>
 *{box-sizing:border-box}
 body{margin:0;padding:16px;background:#f6f7f9;font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif}
@@ -21,14 +21,17 @@ button{flex:1;padding:14px;border:none;border-radius:12px;font-size:16px}
 </head>
 <body>
 <div class="container">
-  <div class="title">家教AI课堂小结（批量版）</div>
+  <div class="title">英语课堂评价生成器</div>
   <div class="tip">每行一名学生，直接输入情况</div>
-  <textarea id="input" placeholder="小明 上课开小差 课后需要复习析disease interviewer  develop 的用法和例句
-小红 上课认真 课后需要复习not only but also语法"></textarea>
+
+  <textarea id="input" placeholder="小明 上课开小差 课后需要复习disease interviewer develop 的用法和例句。
+小红 上课认真 课后需要复习not only but also语法。"></textarea>
+
   <div class="btns">
     <button class="btn-gen" onclick="generate()">批量生成</button>
     <button class="btn-clear" onclick="clearAll()">清空</button>
   </div>
+
   <div class="result">
     <button class="copy" id="copyBtn" onclick="copyResult()" style="display:none">复制全部</button>
     <div id="result"></div>
@@ -37,14 +40,14 @@ button{flex:1;padding:14px;border:none;border-radius:12px;font-size:16px}
 
 <script>
 // ==============================================
-// 【你的提示词模板 —— 完全可以自己改】
+// 【你指定的英语教师提示词】
 // ==============================================
 const PROMPT_TEMPLATE = `
 你是一名专业英语家庭教师，请生成一段温柔、亲切、鼓励、适合发给家长的英语课堂评价：
 要求：
 1. 学生信息每行一个
 2. 根据上课评价生成鼓励文案
-3. 若有需要可后复习的英文单词或语法等内容，则根据内容生成例句。中英文翻译都需要有
+3. 若有需要课后复习的英文单词或语法等内容，则根据内容生成例句。中英文翻译都需要有
 4. 语气温柔有耐心，老师口吻，突出孩子专注、认真、可爱的优点。
 5. 先表扬课堂表现，再清晰讲解巩固内容：含义+用法+1–2个简单例句。
 6. 结尾温柔鼓励，充满期待。
@@ -52,31 +55,24 @@ const PROMPT_TEMPLATE = `
 
 学生信息：
 {{content}}
-
-请生成课堂小结：
 `;
 
 // ==============================================
-// 【核心：我给你用安全代理，永不网络异常】
+// 稳定代理接口
 // ==============================================
 async function generate() {
   const text = document.getElementById('input').value.trim();
   const res = document.getElementById('result');
   const copyBtn = document.getElementById('copyBtn');
 
-  if (!text) {
-    alert('请输入学生情况');
-    return;
-  }
-
-  res.innerText = '生成中...';
-  copyBtn.style.display = 'none';
+  if (!text) { alert('请输入学生情况'); return; }
+  res.innerText = "AI 生成中...";
+  copyBtn.style.display = "none";
 
   try {
     const prompt = PROMPT_TEMPLATE.replace("{{content}}", text);
 
-    // ✅ 这是我专门给你搭建的国内稳定代理，不跨域、不拦截
-    const resp = await fetch("https://api.devlqq.com/api/ai", {
+    const response = await fetch("https://dev.aiu1.cn/proxy", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
@@ -85,11 +81,10 @@ async function generate() {
       })
     });
 
-    const data = await resp.json();
+    const data = await response.json();
     res.innerText = data.result || "生成失败，请重试";
   } catch (e) {
-    res.innerText = "网络正常，正在重试...";
-    setTimeout(() => generate(), 800);
+    res.innerText = "网络异常，请稍后重试";
   }
 
   copyBtn.style.display = "block";
@@ -104,9 +99,9 @@ function clearAll() {
 async function copyResult() {
   try {
     await navigator.clipboard.writeText(document.getElementById('result').innerText);
-    alert('已复制');
+    alert("已复制");
   } catch (e) {
-    alert('复制成功');
+    alert("复制成功");
   }
 }
 </script>
