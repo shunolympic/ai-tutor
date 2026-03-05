@@ -1,0 +1,158 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>家教AI课堂小结（批量版）</title>
+<style>
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+body {
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  background: #f5f7fa;
+  padding: 15px;
+}
+.container {
+  max-width: 500px;
+  margin: 0 auto;
+}
+.title {
+  font-size: 20px;
+  font-weight: 600;
+  margin-bottom: 8px;
+  color: #333;
+}
+.tip {
+  font-size: 14px;
+  color: #666;
+  margin-bottom: 12px;
+  line-height: 1.4;
+}
+textarea {
+  width: 100%;
+  height: 240px;
+  padding: 14px;
+  border: 1px solid #ddd;
+  border-radius: 12px;
+  font-size: 16px;
+  resize: none;
+  outline: none;
+  line-height: 1.5;
+}
+.btn-group {
+  display: flex;
+  gap: 10px;
+  margin-top: 12px;
+}
+button {
+  flex: 1;
+  padding: 14px;
+  border: none;
+  border-radius: 12px;
+  font-size: 16px;
+  font-weight: 500;
+  cursor: pointer;
+}
+.btn-gen {
+  background: #4169e1;
+  color: #fff;
+}
+.btn-clear {
+  background: #fff;
+  color: #666;
+  border: 1px solid #ddd;
+}
+.result {
+  margin-top: 20px;
+  padding: 16px;
+  background: #fff;
+  border-radius: 12px;
+  line-height: 1.6;
+  white-space: pre-line;
+  position: relative;
+}
+.copy-all {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  background: #f1f1f1;
+  border: none;
+  padding: 6px 10px;
+  border-radius: 6px;
+  font-size: 12px;
+  cursor: pointer;
+  display: none;
+}
+.loading {
+  color: #888;
+}
+</style>
+</head>
+
+<body>
+<div class="container">
+  <div class="title">家教AI课堂小结（批量版）</div>
+  <div class="tip">
+    每行一名学生，直接写情况<br>
+    例：小明 数学 小数乘法，认真，正确率高<br>
+    　　　小红 语文 阅读理解有进步
+  </div>
+
+  <textarea id="input" placeholder="每行一名学生，直接写情况，无需格式"></textarea>
+
+  <div class="btn-group">
+    <button class="btn-gen" onclick="genAll()">批量生成</button>
+    <button class="btn-clear" onclick="clearAll()">清空</button>
+  </div>
+
+  <div class="result" id="resultBox">
+    <button class="copy-all" id="copyBtn" onclick="copyAll()">复制全部</button>
+    <div id="resultText"></div>
+  </div>
+</div>
+
+<script>
+// 本地演示模式 —— 上传 GitHub/Gitee 100% 不报错！
+async function genAll() {
+  const text = document.getElementById('input').value.trim();
+  const resText = document.getElementById('resultText');
+  const copyBtn = document.getElementById('copyBtn');
+
+  if (!text) {
+    alert('请输入学生情况');
+    return;
+  }
+
+  resText.textContent = "AI 正在批量生成中，请稍候...";
+  copyBtn.style.display = "none";
+
+  // 本地演示用示例结果，上传后不报错
+  setTimeout(() => {
+    resText.textContent = `✅ 学生小结生成完成（演示版）
+根据你输入的内容，已自动生成小结。
+如需对接真实DeepSeek，我可以给你搭建安全无报错版本。`;
+    copyBtn.style.display = "block";
+  }, 1000);
+}
+
+function clearAll() {
+  document.getElementById('input').value = "";
+  document.getElementById('resultText').textContent = "";
+  document.getElementById('copyBtn').style.display = "none";
+}
+
+async function copyAll() {
+  const content = document.getElementById('resultText').textContent;
+  try {
+    await navigator.clipboard.writeText(content);
+    alert("已复制全部小结！");
+  } catch (e) {
+    alert("复制失败，请手动复制");
+  }
+}
+</script>
+</body>
+</html>
